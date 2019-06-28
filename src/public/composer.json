@@ -1,0 +1,9 @@
+{
+    "name": "rafikfarhad/docker-compose-default",
+    "license": "MIT",
+    "authors": [{
+        "name": "RafikFarhad",
+        "email": "rafikfarhad@gmail.com"
+    }],
+    "require": {}
+}

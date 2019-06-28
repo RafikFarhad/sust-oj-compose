@@ -1,0 +1,88 @@
+version: "3.7"
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - 8080:80
+    restart: unless-stopped
+    volumes: 
+      - $SOURCE_PATH:/var/www/___
+      - ./nginx/conf:/etc/nginx
+    depends_on:
+      - php
+    networks: 
+      - legacy
+    environment:
+      SERVICE_NAME: nginx
+      SERVICE_TAGS: dev
+  php:
+    build: 
+      context: ./
+      dockerfile: ./php/Dockerfile
+      args:
+        - SOURCE_PATH=${SOURCE_PATH}
+    restart: unless-stopped
+    working_dir: /var/www/___
+    volumes: 
+      - $SOURCE_PATH:/var/www/___
+    networks: 
+      - legacy
+    environment:
+      SERVICE_NAME: php
+      SERVICE_TAGS: dev
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: contest_manager
+      MYSQL_ROOT_PASSWORD: sustcse
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - legacy
+  redis:
+    image: redis:5.0.5
+    container_name: redis
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - legacy
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+     - PMA_ARBITRARY=1
+    restart: always
+    ports:
+     - 50:80
+    volumes:
+     - /sessions
+    networks:
+      - legacy
+networks: 
+  legacy:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+  redisdata:
+    driver: local
+
+# (required) update .env in the source eg: DB_HOST=db
+# (required) docker run --rm -v $(pwd)/src/subCODE:/app composer install
+# (required) docker exec -it {ID_OF_THE_CONTAINER} php artisan config:cache
+
