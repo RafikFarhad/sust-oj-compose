@@ -5,11 +5,12 @@ services:
     build:
       context: ./nginx
     ports:
-      - 8080:80
+      - 80:80
     restart: unless-stopped
     volumes: 
-      - $SOURCE_PATH:/var/www/___
-      - ./nginx/conf:/etc/nginx
+      - ./src/subCODE:/var/www/
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf/sites-enabled/:/etc/nginx/sites-enabled/
     depends_on:
       - php
     networks: 
@@ -19,14 +20,12 @@ services:
       SERVICE_TAGS: dev
   php:
     build: 
-      context: ./
-      dockerfile: ./php/Dockerfile
-      args:
-        - SOURCE_PATH=${SOURCE_PATH}
+      context: ./php
+    ports:
+      - 9000:9000
     restart: unless-stopped
-    working_dir: /var/www/___
     volumes: 
-      - $SOURCE_PATH:/var/www/___
+      - ./src/subCODE:/var/www/
     networks: 
       - legacy
     environment:
@@ -40,7 +39,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: contest_manager
+      MYSQL_DATABASE: source_code_v2
       MYSQL_ROOT_PASSWORD: sustcse
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
@@ -60,6 +59,22 @@ services:
       - redisdata:/data
     networks:
       - legacy
+  rabbitmq:
+    build:
+      context: ./rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./src/subCODE/rabbitmq.config.json:/etc/rabbitmq/rabbitmq.config.json
+      - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - rabbitmqdata:/var/lib/rabbitmq
+    restart: unless-stopped
+    networks:
+      - legacy
+    environment:
+      SERVICE_NAME: rabbitmq
+      SERVICE_TAGS: dev
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
@@ -72,6 +87,7 @@ services:
      - /sessions
     networks:
       - legacy
+
 networks: 
   legacy:
     driver: bridge
@@ -81,8 +97,5 @@ volumes:
     driver: local
   redisdata:
     driver: local
-
-# (required) update .env in the source eg: DB_HOST=db
-# (required) docker run --rm -v $(pwd)/src/subCODE:/app composer install
-# (required) docker exec -it {ID_OF_THE_CONTAINER} php artisan config:cache
-
+  rabbitmqdata:
+    driver: local
