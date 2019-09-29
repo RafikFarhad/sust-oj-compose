@@ -1,0 +1,3 @@
+[submodule "src/subCODE"]
+	path = src/subCODE
+	url = git@github.com:RafikFarhad/subCODE.git
