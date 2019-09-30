@@ -92,7 +92,7 @@ services:
       - "3333:3333"
     command: "bash -c \"yarn && node index.js\""      
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
     environment:
      - PMA_ARBITRARY=1
@@ -100,7 +100,7 @@ services:
     ports:
      - 50:80
     volumes:
-     - /sessions
+     - ./volumes/pma/:/sessions
     networks:
       - legacy
 
