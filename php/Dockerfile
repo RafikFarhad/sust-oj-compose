@@ -1,1 +1,1 @@
-FROM rafikfarhad/php:1.0.1
+FROM rafikfarhad/php:1.0.2
