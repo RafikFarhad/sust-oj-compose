@@ -26,6 +26,7 @@ services:
     restart: unless-stopped
     volumes: 
       - ./src/subCODE/:/var/www/
+      - ./php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
     networks: 
       - legacy
     environment:
