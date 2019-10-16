@@ -41,6 +41,10 @@ phpmyadmin | PhpMyAdmin | - | 50
     7| yarn && yarn prod |docker-compose exec nodejs bash -c "cd ../subCODE && yarn && yarn prod"
 8. Stop the `docker-compose up` process by `Ctrl + C` and start again
 9. You can run `docker-compose up -d` to start the process in background
+10. To access the files from judge module run the following command:
+
+`sudo ln -s {PATH_TO_THIS_REPO}/sust-oj-compose/src/subCODE/storage/ /var/www` 
+(this command is necessary if you run the judge server without docker).
 
 
 ## Note
