@@ -79,7 +79,7 @@ services:
   nodejs:
     build:
       context: ./nodejs
-    working_dir: /var/www/subCODE
+    working_dir: /var/www/liveCODE
     volumes:
       - ./src/liveCODE/:/var/www/liveCODE/
       - ./src/subCODE/:/var/www/subCODE/
@@ -91,7 +91,7 @@ services:
       SERVICE_TAGS: dev
     ports:
       - "3333:3333"
-    command: "bash -c \"yarn && yarn prod && cd ../liveCODE && yarn && node index.js\""      
+    command: "bash -c \"yarn && node index.js\""      
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
