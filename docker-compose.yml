@@ -20,18 +20,32 @@ services:
       SERVICE_TAGS: dev
   php:
     build: 
-      context: ./php
+      context: ./src/subCODE
+    working_dir: /var/www/subCODE
+    volumes: 
+      - ./src/subCODE/:/var/www/
     ports:
       - 9000:9000
     restart: unless-stopped
-    volumes: 
-      - ./src/subCODE/:/var/www/
-      - ./php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
     networks: 
       - legacy
     environment:
       SERVICE_NAME: php
       SERVICE_TAGS: dev
+  nodejs:
+    build:
+      context: ./src/liveCODE
+    working_dir: /var/www/liveCODE
+    volumes:
+      - ./src/liveCODE/:/var/www/liveCODE/
+    restart: unless-stopped
+    networks:
+      - legacy
+    environment:
+      SERVICE_NAME: nodejs
+      SERVICE_TAGS: dev
+    ports:
+      - "3333:3333"
   db:
     image: mysql:5.7.22
     container_name: db
@@ -76,22 +90,6 @@ services:
     environment:
       SERVICE_NAME: rabbitmq
       SERVICE_TAGS: dev
-  nodejs:
-    build:
-      context: ./nodejs
-    working_dir: /var/www/liveCODE
-    volumes:
-      - ./src/liveCODE/:/var/www/liveCODE/
-      - ./src/subCODE/:/var/www/subCODE/
-    restart: unless-stopped
-    networks:
-      - legacy
-    environment:
-      SERVICE_NAME: nodejs
-      SERVICE_TAGS: dev
-    ports:
-      - "3333:3333"
-    command: "bash -c \"yarn && node index.js\""      
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin

@@ -1,1 +1,0 @@
-FROM rafikfarhad/php:1.0.2
