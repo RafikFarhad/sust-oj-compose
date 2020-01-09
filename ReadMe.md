@@ -19,6 +19,8 @@ phpmyadmin | PhpMyAdmin | - | 50
     - To stop starting in every boot up:  `sudo systemctl disable nginx`
     - NB: Sometimes it is possible that `apache2` is running, stop it by applying the same process, replace `nginx` by `apache2`(Ubuntu) or `httpd` (CentOS)
 2. Open your `/etc/hosts` and add the following two entries:
+    - `127.0.0.1 minio`
+    - `127.0.0.1 nodejs`
     - `127.0.0.1 judge.code.fs`
     - `127.0.0.1 live.code.fs`
     - `127.0.0.1 do.code.fs`
