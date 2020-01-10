@@ -39,6 +39,7 @@ services:
       context: ./src/liveCODE
     volumes:
       - ./src/liveCODE/:/var/www/liveCODE/
+      - ./src/subCODE/:/var/www/subCODE/
     restart: unless-stopped
     ports:
       - "3333:3333"
@@ -68,7 +69,6 @@ services:
     environment:
       MINIO_ACCESS_KEY: root
       MINIO_SECRET_KEY: sustcse13
-    environment:
       SERVICE_NAME: minio
       SERVICE_TAGS: dev
   db:

@@ -10,7 +10,8 @@ mysql | MySQL | 5.7.22 | 3306
 redis | Redis DB | 5.0.5 | 6379
 rabbitmq | Rabbit MQ | 3.7.18 | 5672, 15672
 nodejs | Node JS | 12.10.0 | 3333
-phpmyadmin | PhpMyAdmin | - | 50
+minio | Minio | RELEASE.2020-01-03T19-12-21Z | 9999
+phpmyadmin | PhpMyAdmin | latest | 50
 
 ## Manual
 1. If you have `nginx` running natively, you've to stop that first.
@@ -29,11 +30,11 @@ phpmyadmin | PhpMyAdmin | - | 50
 3. Clone this repo by this command:
     - `git clone --recursive git@github.com:RafikFarhad/sust-oj-compose.git`
     - copy `.env.example` as `.env`
-4. Go to `./src` folder, here you have to copy `.env.example` as `.env` for every project and replace `HOST`, `PORT` and `SERVICE` as per as catelogue aliases
+4. Go to `./src/liveCODE` & `./src/subCODE` folder, here you have to copy `.env.example` as `.env` for every project and replace `HOST`, `PORT` and `SERVICE` as per as catelogue aliases
 5. Go to [`http://localhost:50`](http://localhost:50) and create a database. Name should be same as `./src/subCODE/.env` file `DB_DATABASE=` value
-6. Run `docker-compose up`
-7. Run these command one by one:
-
+6. Go to [`http://content.code.fs`](http://content.code.fs) and create a storage bucket. Bucket name should be same as `./src/subCODE/.env` file `AWS_BUCKET_NAME=` value
+7. Run `docker-compose up`
+8. Run these command if needed:
 
     \# | Native Command | Equivalent Docker Command
     --|---------------|--------------------------
@@ -44,13 +45,8 @@ phpmyadmin | PhpMyAdmin | - | 50
     5| php artisan migrate --seed | docker-compose exec php php artisan migrate --seed
     6| php artisan permission:cache | docker-compose exec php php artisan permission:cache
     7| yarn && yarn prod |docker-compose exec nodejs bash -c "cd ../subCODE && yarn && yarn prod"
-8. Stop the `docker-compose up` process by `Ctrl + C` and start again
-9. You can run `docker-compose up -d` to start the process in background
-10. To access the files from judge module run the following command:
-
-`sudo ln -s {PATH_TO_THIS_REPO}/sust-oj-compose/src/subCODE/storage/ /var/www` 
-(this command is necessary if you run the judge server without docker).
-
+9. Stop the `docker-compose up` process by `Ctrl + C` and start again
+10. You can run `docker-compose up -d` to start the process in background
 
 ## Note
 Though this docker environment is built to serve a specific project, this environment can be used to use as developemnt setup for any Laravel/VueJs/ReactJs/NodeJs project. 
