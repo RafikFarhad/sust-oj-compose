@@ -23,7 +23,7 @@ services:
   php:
     build: 
       context: ./src/subCODE
-    working_dir: /var/www/subCODE
+    working_dir: /var/www
     volumes: 
       - ./src/subCODE/:/var/www/
     ports:
@@ -37,6 +37,7 @@ services:
   nodejs:
     build:
       context: ./src/liveCODE
+    working_dir: /var/www/liveCODE
     volumes:
       - ./src/liveCODE/:/var/www/liveCODE/
       - ./src/subCODE/:/var/www/subCODE/
