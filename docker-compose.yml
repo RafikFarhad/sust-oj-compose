@@ -25,6 +25,8 @@ services:
   php_sub:
     build: 
       context: ./src/subCODE
+      args: 
+        BUILD: DEV
     working_dir: /var/www/subCODE
     volumes: 
       - ./src/subCODE/:/var/www/subCODE
@@ -39,6 +41,8 @@ services:
   php_master:
     build: 
       context: ./src/masterCODE
+      args: 
+        BUILD: DEV  
     working_dir: /var/www/masterCODE
     volumes: 
       - ./src/masterCODE/:/var/www/masterCODE
