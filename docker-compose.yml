@@ -26,7 +26,7 @@ services:
     build: 
       context: ./src/subCODE
       args: 
-        BUILD: DEV
+        BUILD: PROD
     working_dir: /var/www/subCODE
     volumes: 
       - ./src/subCODE/:/var/www/subCODE
@@ -42,12 +42,14 @@ services:
     build: 
       context: ./src/masterCODE
       args: 
-        BUILD: DEV  
+        BUILD: DEV
+        DEBUG_PORT: 9050
     working_dir: /var/www/masterCODE
     volumes: 
       - ./src/masterCODE/:/var/www/masterCODE
     ports:
       - 9001:9000
+      - 9050:9050
     restart: unless-stopped
     networks: 
       - legacy
