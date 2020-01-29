@@ -35,6 +35,8 @@ services:
     restart: unless-stopped
     networks: 
       - legacy
+    extra_hosts:
+      - "dockerhost:192.168.0.112"
     environment:
       SERVICE_NAME: php_sub
       SERVICE_TAGS: dev
@@ -49,10 +51,11 @@ services:
       - ./src/masterCODE/:/var/www/masterCODE
     ports:
       - 9001:9000
-      - 9050:9050
     restart: unless-stopped
     networks: 
       - legacy
+    extra_hosts:
+      - "dockerhost:192.168.0.112"
     environment:
       SERVICE_NAME: php_master
       SERVICE_TAGS: dev
