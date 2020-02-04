@@ -32,6 +32,8 @@ services:
       - ./src/subCODE/:/var/www/subCODE
     ports:
       - 9000:9000
+    env_file: 
+      - .env
     restart: unless-stopped
     networks: 
       - legacy
@@ -94,7 +96,7 @@ services:
       retries: 3
     environment:
       MINIO_ACCESS_KEY: root
-      MINIO_SECRET_KEY: sustcse13
+      MINIO_SECRET_KEY: ${__MINIO_PASSWORD}
       SERVICE_NAME: minio
       SERVICE_TAGS: dev
   db:
@@ -104,9 +106,12 @@ services:
     tty: true
     ports:
       - "3306:3306"
+    entrypoint:
+      sh -c "
+        echo 'CREATE DATABASE IF NOT EXISTS source_code_v2; CREATE DATABASE IF NOT EXISTS master_telescope;  CREATE DATABASE IF NOT EXISTS sub_telescope;' > /docker-entrypoint-initdb.d/init.sql;
+        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     environment:
-      MYSQL_DATABASE: source_code_v2
-      MYSQL_ROOT_PASSWORD: sustcse
+      MYSQL_ROOT_PASSWORD: ${__DB_PASSWORD}
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     volumes:
@@ -123,6 +128,8 @@ services:
       - "6379:6379"
     volumes:
       - ./volumes/redisdata/:/data/
+    environment: 
+      REDIS_PASSWORD: ${__REDIS_PASSWORD}
     networks:
       - legacy
   rabbitmq:
