@@ -7,3 +7,6 @@
 [submodule "src/masterCODE"]
 	path = src/masterCODE
 	url = git@github.com:RafikFarhad/masterCODE.git
+[submodule "src/doCODE"]
+	path = src/doCODE
+	url = git@github.com:RafikFarhad/doCODE.git
