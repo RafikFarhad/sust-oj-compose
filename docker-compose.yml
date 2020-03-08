@@ -99,6 +99,7 @@ services:
     networks:
       - legacy
     environment:
+      HOST: "0.0.0.0"
       SERVICE_NAME: docode
       SERVICE_TAGS: dev
   minio:
