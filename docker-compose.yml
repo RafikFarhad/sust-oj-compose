@@ -31,8 +31,8 @@ services:
     working_dir: /var/www/subCODE
     volumes: 
       - ./src/subCODE/:/var/www/subCODE
-    ports:
-      - 9000:9000
+    # ports:
+    #   - 9000:9000
     env_file:
       - .env
     restart: unless-stopped
@@ -46,14 +46,14 @@ services:
   php_master:
     build: 
       context: ./src/masterCODE
-      args: 
-        BUILD: ${DOCKER_ENVIRONMENT}
-        DEBUG_PORT: 9050
+      # args: 
+      #   BUILD: ${DOCKER_ENVIRONMENT}
+      #   DEBUG_PORT: 9050
     working_dir: /var/www/masterCODE
     volumes: 
       - ./src/masterCODE/:/var/www/masterCODE
-    ports:
-      - 9001:9000
+    # ports:
+    #   - 9001:9000
     env_file:
       - .env
     restart: unless-stopped
@@ -88,7 +88,7 @@ services:
     build:
       context: ./src/doCODE
     working_dir: /var/www
-    command: bash -c "yarn build &&  yarn start"
+    command: bash -c "yarn && yarn build &&  yarn start"
     volumes:
       - ./src/doCODE/:/var/www/
     restart: unless-stopped
@@ -151,7 +151,7 @@ services:
       - "6379:6379"
     volumes:
       - ./volumes/redisdata/:/data/
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
     environment: 
       SERVICE_TAGS: dev
       SERVICE_NAME: redis
