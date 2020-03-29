@@ -10,16 +10,14 @@ services:
     volumes: 
       - ./src/subCODE/:/var/www/subCODE
       - ./src/masterCODE/:/var/www/masterCODE
-      # - ./src/authCODE/:/var/www/authCODE
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf/sites-enabled/:/etc/nginx/sites-enabled/
-    depends_on:
-      - php_sub
-      - php_master
-      # - php_auth
-      - minio
-      - nodejs
-      - docode
+    # depends_on:
+    #   - php_sub
+    #   - php_master
+    #   - minio
+    #   - nodejs
+    #   - docode
     networks: 
       - legacy
     environment:
@@ -68,27 +66,6 @@ services:
     environment:
       SERVICE_NAME: php_master
       SERVICE_TAGS: dev
-  # php_auth:
-  #   build: 
-  #     context: ./src/authCODE
-  #     # args: 
-  #     #   BUILD: ${DOCKER_ENVIRONMENT}
-  #     #   DEBUG_PORT: 9050
-  #   working_dir: /var/www/authCODE
-  #   volumes: 
-  #     - ./src/authCODE/:/var/www/authCODE
-  #   # ports:
-  #   #   - 9001:9000
-  #   env_file:
-  #     - .env
-  #   restart: unless-stopped
-  #   networks: 
-  #     - legacy
-  #   extra_hosts:
-  #     - "dockerhost:192.168.0.112"
-  #   environment:
-  #     SERVICE_NAME: php_auth
-  #     SERVICE_TAGS: dev
   nodejs:
     build:
       context: ./src/liveCODE
@@ -117,6 +94,8 @@ services:
     volumes:
       - ./src/doCODE/:/var/www/
     restart: unless-stopped
+    links: 
+      - nginx:master.code.fs
     ports:
       - 4000:3000
     depends_on:
