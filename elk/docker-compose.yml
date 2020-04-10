@@ -1,0 +1,34 @@
+version: "3.7"
+
+services:
+  elkx-service:
+    image: sebp/elkx
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+      - "6000:6000"
+      - "6001:6001"
+    restart: unless-stopped
+    volumes:
+      - ./volumes/elk-data:/var/lib/elasticsearch
+      - ./configs/python-logger.conf:/etc/logstash/conf.d/03-python-logger.conf
+      - ./configs/php-logger.conf:/etc/logstash/conf.d/04-php-logger.conf
+    env_file:
+      - .env
+    networks:
+      - legacy
+    environment:
+      # - ELASTIC_BOOTSTRAP_PASSWORD=${BS_PASSWORD}
+      - ELASTICSEARCH_USER=elastic
+      - ELASTICSEARCH_PASSWORD=${PASSWORD}
+      - LOGSTASH_USER=elastic
+      - LOGSTASH_PASSWORD=${PASSWORD}
+      - KIBANA_USER=kibana
+      - KIBANA_PASSWORD=${PASSWORD}
+networks:
+  legacy:
+    driver: bridge
+# $ES_HOME/bin/x-pack/setup-passwords interactive
+# /opt/logstash/bin/logstash --path.data /tmp/logstash/data -e 'input { stdin { } } output { elasticsearch { hosts => ["localhost"] } }'
+# /opt/logstash/bin/logstash --path.data /tmp/logstash/data -e 'input { stdin { } } output { elasticsearch { hosts => ["localhost"] user => "elastic" password => "changeme" } }'

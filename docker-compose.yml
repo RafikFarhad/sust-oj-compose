@@ -39,7 +39,7 @@ services:
     networks: 
       - legacy
     # extra_hosts:
-    #   - "dockerhost:192.168.0.112"
+    #   - "dockerhost:192.168.0.114"
     environment:
       SERVICE_NAME: php_sub
       SERVICE_TAGS: dev
