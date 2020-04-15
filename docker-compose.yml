@@ -184,7 +184,7 @@ services:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
     environment:
-     - PMA_ARBITRARY=1
+     - PMA_HOST=db
     restart: always
     ports:
      - 50:80
