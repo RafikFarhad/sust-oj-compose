@@ -180,6 +180,19 @@ services:
       RMQ_DEFAULT_PASSWORD: ${RMQ_PASSWORD}
       SERVICE_NAME: rabbitmq
       SERVICE_TAGS: dev
+  judgeMod:
+    image: gcr.io/source-code-oj/judgemod:v2-alpha2.1
+    restart: unless-stopped
+    volumes: 
+      - ./src/judgeMod/config.ini:/home/judge/judgeMod/sustoj/config.ini
+    extra_hosts:
+      - "dockerhost:192.168.0.114"
+      - "content.code.fs:192.168.0.114"
+    networks: 
+      - legacy
+    environment:
+      SERVICE_NAME: judgeMod
+      SERVICE_TAGS: dev
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
