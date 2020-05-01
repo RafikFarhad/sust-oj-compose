@@ -111,7 +111,7 @@ services:
     volumes:
       - ./volumes/minio:/data
     ports:
-      - 9999:9000
+      - 9000:9000
     restart: unless-stopped
     command: server /data
     networks: 
