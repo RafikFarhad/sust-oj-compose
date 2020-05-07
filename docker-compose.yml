@@ -7,7 +7,7 @@ services:
     ports:
       - 80:80
     restart: unless-stopped
-    volumes: 
+    volumes:
       - ./src/subCODE/:/var/www/subCODE
       - ./src/masterCODE/:/var/www/masterCODE
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
@@ -18,25 +18,25 @@ services:
     #   - minio
     #   - nodejs
     #   - docode
-    networks: 
+    networks:
       - legacy
     environment:
       SERVICE_NAME: nginx
       SERVICE_TAGS: dev
   php_sub:
-    build: 
+    build:
       context: ./src/subCODE
-      args: 
-        BUILD: ${DOCKER_ENVIRONMENT}
+      # args:
+      #   BUILD: ${DOCKER_ENVIRONMENT}
     working_dir: /var/www/subCODE
-    volumes: 
+    volumes:
       - ./src/subCODE/:/var/www/subCODE
     # ports:
     #   - 9000:9000
-    env_file:
-      - .env
+    # env_file:
+    #   - ./.env
     restart: unless-stopped
-    networks: 
+    networks:
       - legacy
     # extra_hosts:
     #   - "dockerhost:192.168.0.114"
@@ -44,22 +44,22 @@ services:
       SERVICE_NAME: php_sub
       SERVICE_TAGS: dev
   php_master:
-    build: 
+    build:
       context: ./src/masterCODE
-      # args: 
+      # args:
       #   BUILD: ${DOCKER_ENVIRONMENT}
       #   DEBUG_PORT: 9050
     working_dir: /var/www/masterCODE
-    volumes: 
+    volumes:
       - ./src/masterCODE/:/var/www/masterCODE
     # ports:
     #   - 9001:9000
-    env_file:
-      - .env
+    # env_file:
+    #   - ./.env
     restart: unless-stopped
     # links:
     #   - nginx:auth.code.fs
-    networks: 
+    networks:
       - legacy
     # extra_hosts:
     #   - "dockerhost:192.168.0.112"
@@ -76,8 +76,8 @@ services:
     restart: unless-stopped
     ports:
       - 3333:3333
-    env_file:
-      - .env
+    # env_file:
+    #   - ./.env
     depends_on:
       - redis
       - rabbitmq
@@ -94,7 +94,7 @@ services:
     volumes:
       - ./src/doCODE/:/var/www/
     restart: unless-stopped
-    links: 
+    links:
       - nginx:master.code.fs
     ports:
       - 4000:3000
@@ -114,8 +114,10 @@ services:
       - 9000:9000
     restart: unless-stopped
     command: server /data
-    networks: 
+    networks:
       - legacy
+    # env_file:
+    #   - .env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -133,10 +135,9 @@ services:
     tty: true
     ports:
       - "3306:3306"
-    entrypoint:
-      sh -c "
-        echo 'CREATE DATABASE IF NOT EXISTS source_code_v2; CREATE DATABASE IF NOT EXISTS master_telescope;  CREATE DATABASE IF NOT EXISTS sub_telescope;' > /docker-entrypoint-initdb.d/init.sql;
-        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+    entrypoint: sh -c "
+      echo 'CREATE DATABASE IF NOT EXISTS source_code_v2; CREATE DATABASE IF NOT EXISTS master_telescope;  CREATE DATABASE IF NOT EXISTS sub_telescope;' > /docker-entrypoint-initdb.d/init.sql;
+      /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       SERVICE_TAGS: dev
@@ -156,7 +157,7 @@ services:
     volumes:
       - ./volumes/redisdata/:/data/
     command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
-    environment: 
+    environment:
       SERVICE_TAGS: dev
       SERVICE_NAME: redis
     networks:
@@ -183,12 +184,12 @@ services:
   judgeMod:
     image: gcr.io/source-code-oj/judgemod:v2-alpha2.1
     restart: unless-stopped
-    volumes: 
+    volumes:
       - ./src/judgeMod/config.ini:/home/judge/judgeMod/sustoj/config.ini
     extra_hosts:
       - "dockerhost:192.168.0.114"
       - "content.code.fs:192.168.0.114"
-    networks: 
+    networks:
       - legacy
     environment:
       SERVICE_NAME: judgeMod
@@ -197,15 +198,15 @@ services:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
     environment:
-     - PMA_HOST=db
+      - PMA_HOST=db
     restart: always
     ports:
-     - 50:80
+      - 50:80
     volumes:
-     - ./volumes/pma/:/sessions
+      - ./volumes/pma/:/sessions
     networks:
       - legacy
 
-networks: 
+networks:
   legacy:
     driver: bridge
