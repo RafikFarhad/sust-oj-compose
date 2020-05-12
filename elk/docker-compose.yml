@@ -6,13 +6,14 @@ services:
     ports:
       - "5601:5601"
       - "9200:9200"
-      - "5044:5044"
       - "6000:6000"
       - "6001:6001"
     restart: unless-stopped
     volumes:
       - ./volumes/elk-data:/var/lib/elasticsearch
-      - ./configs/python-logger.conf:/etc/logstash/conf.d/03-python-logger.conf
+      - ./configs/02-beats-input.conf:/etc/logstash/conf.d/02-beats-input.conf
+      - ./configs/30-output.conf:/etc/logstash/conf.d/30-output.conf
+      - ./configs/judgemod-beat-logger.conf:/etc/logstash/conf.d/03-judgemod-beat-logger.conf
       - ./configs/php-logger.conf:/etc/logstash/conf.d/04-php-logger.conf
     env_file:
       - .env
@@ -30,5 +31,3 @@ networks:
   legacy:
     driver: bridge
 # $ES_HOME/bin/x-pack/setup-passwords interactive
-# /opt/logstash/bin/logstash --path.data /tmp/logstash/data -e 'input { stdin { } } output { elasticsearch { hosts => ["localhost"] } }'
-# /opt/logstash/bin/logstash --path.data /tmp/logstash/data -e 'input { stdin { } } output { elasticsearch { hosts => ["localhost"] user => "elastic" password => "changeme" } }'
