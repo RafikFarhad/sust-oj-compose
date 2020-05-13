@@ -182,10 +182,13 @@ services:
       SERVICE_NAME: rabbitmq
       SERVICE_TAGS: dev
   judgeMod:
-    image: gcr.io/source-code-oj/judgemod:v2-alpha2.1
+    image: gcr.io/source-code-oj/judgemod:v2-alpha2.3
     restart: unless-stopped
     volumes:
       - ./src/judgeMod/config.ini:/home/judge/judgeMod/sustoj/config.ini
+      - ./volumes/judgemod/cache/:/home/judge/judge_cache/
+      - ./volumes/judgemod/sub_data/:/home/judge/sub_data/
+      - ./volumes/judgemod/log/:/var/log/judgemod/
     extra_hosts:
       - "dockerhost:192.168.0.114"
       - "content.code.fs:192.168.0.114"
