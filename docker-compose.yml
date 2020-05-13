@@ -182,7 +182,7 @@ services:
       SERVICE_NAME: rabbitmq
       SERVICE_TAGS: dev
   judgeMod:
-    image: gcr.io/source-code-oj/judgemod:v2-alpha2.3
+    image: judgemod:latest
     restart: unless-stopped
     volumes:
       - ./src/judgeMod/config.ini:/home/judge/judgeMod/sustoj/config.ini

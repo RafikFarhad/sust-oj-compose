@@ -12,6 +12,7 @@ rabbitmq | Rabbit MQ | 3.7.18 | 5672, 15672
 nodejs | Node JS | 12.10.0 | 3333
 minio | Minio | RELEASE.2020-01-03T19-12-21Z | 9999
 phpmyadmin | PhpMyAdmin | latest | 50
+judgeMod | [judgeMod](https://github.com/talatmursalin/judgeMod/) | - | -
 
 ## Manual
 1. If you have `nginx` running natively, you've to stop that first.
@@ -48,6 +49,15 @@ phpmyadmin | PhpMyAdmin | latest | 50
 9. Stop the `docker-compose up` process by `Ctrl + C` and start again
 10. You can run `docker-compose up -d` to start the process in background
 
+## To run with judgeMod
+
+- Go to judgeMod repo and build judgeMod image
+ 
+    `docker build -t judgemod:latest .`
+
+- After each time judgeMod image build, you have to restart the docker-compose
+
+    `docker-compose down && docker-compose up -d`
 ## Note
 Though this docker environment is built to serve a specific project, this environment can be used to use as developemnt setup for any Laravel/VueJs/ReactJs/NodeJs project. 
 
