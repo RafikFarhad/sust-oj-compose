@@ -10,7 +10,7 @@ mysql | MySQL | 5.7.22 | 3306
 redis | Redis DB | 5.0.5 | 6379
 rabbitmq | Rabbit MQ | 3.7.18 | 5672, 15672
 nodejs | Node JS | 12.10.0 | 3333
-minio | Minio | RELEASE.2020-01-03T19-12-21Z | 9999
+minio | Minio | RELEASE.2020-01-25T02-50-51Z | 9999,9000
 phpmyadmin | PhpMyAdmin | latest | 50
 judgeMod | [judgeMod](https://github.com/talatmursalin/judgeMod/) | - | -
 
@@ -27,35 +27,38 @@ judgeMod | [judgeMod](https://github.com/talatmursalin/judgeMod/) | - | -
     - `127.0.0.1 live.code.fs`
     - `127.0.0.1 do.code.fs`
     - `127.0.0.1 content.code.fs`
+    - `127.0.0.1 master.code.fs`
 
 3. Clone this repo by this command:
     - `git clone --recursive git@github.com:RafikFarhad/sust-oj-compose.git`
+    - `git update --submodules`
     - copy `.env.example` as `.env`
-4. Go to `./src/liveCODE` & `./src/subCODE` folder, here you have to copy `.env.example` as `.env` for every project and replace `HOST`, `PORT` and `SERVICE` as per as catelogue aliases
-5. Go to [`http://localhost:50`](http://localhost:50) and create a database. Name should be same as `./src/subCODE/.env` file `DB_DATABASE=` value
-6. Go to [`http://content.code.fs`](http://content.code.fs) and create a storage bucket. Bucket name should be same as `./src/subCODE/.env` file `AWS_BUCKET_NAME=` value
-7. Run `docker-compose up`
-8. Run these command if needed:
+4. Go to each sub folder of `./src/`,  copy `.env.example` as `.env`, replace `HOST`, `PORT` and `SERVICE` as per as catelogue aliases, update necessary configuration also.
+5. Go to [`http://localhost:50`](http://localhost:50) and create database. Name should be same as `./src/subCODE/.env` file's `DB_DATABASE=`, `TELESCOPE_DB_DATABASE=` and `./src/masterCODE/.env` file's `TELESCOPE_DB_DATABASE=` value
+6. Go to [`http://content.code.fs`](http://content.code.fs) and create a storage bucket. Bucket name should be same as `./src/subCODE/.env` file `STORAGE_BUCKET_NAME=` value
+7.  Copy `./src/judgeMod/example.config.ini` to `./src/judgeMod/config.ini` and replace credentials.
+
+8. Go to judgeMod repo and build judgeMod image
+ 
+    `docker build -t judgemod:latest .`
+9. Run `./setup.sh`
+10. Run `docker-compose up`
+
+## Neccessary Commands
+
+- Run these command if needed:
 
     \# | Native Command | Equivalent Docker Command
     --|---------------|--------------------------
     1 | composer update | docker-compose exec php composer update
     2 | chmod 777 -R ... | docker-compose exec php chmod 777 -R bootstrap public storage
-    3| php artisan key:generate | docker-compose exec php php artisan key:generate
-    4| php artisan cache:clear | docker-compose exec php php artisan cache:clear
-    5| php artisan migrate --seed | docker-compose exec php php artisan migrate --seed
-    6| php artisan permission:cache | docker-compose exec php php artisan permission:cache
-    7| yarn && yarn prod |docker-compose exec nodejs bash -c "cd ../subCODE && yarn && yarn prod"
-9. Stop the `docker-compose up` process by `Ctrl + C` and start again
-10. You can run `docker-compose up -d` to start the process in background
-
-## To run with judgeMod
-
-- Copy `./src/judgeMod/example.config.ini` to `./src/judgeMod/config.ini` and replace credentials.
-
-- Go to judgeMod repo and build judgeMod image
- 
-    `docker build -t judgemod:latest .`
+    3| php artisan key:generate | docker-compose exec php_sub php artisan key:generate
+    4| php artisan cache:clear | docker-compose exec php_sub php artisan cache:clear
+    5| php artisan migrate --seed | docker-compose exec php_sub php artisan migrate --seed
+    6| php artisan permission:cache | docker-compose exec php_sub php artisan permission:cache
+    7| yarn && yarn prod | docker-compose exec nodejs bash -c "cd ../subCODE && yarn && yarn prod"
+    
+- You can run `docker-compose up -d` to start the process in background
 
 - After each time judgeMod image build, you have to restart the docker-compose
 
