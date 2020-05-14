@@ -51,6 +51,8 @@ judgeMod | [judgeMod](https://github.com/talatmursalin/judgeMod/) | - | -
 
 ## To run with judgeMod
 
+- Copy `./src/judgeMod/example.config.ini` to `./src/judgeMod/config.ini` and replace credentials.
+
 - Go to judgeMod repo and build judgeMod image
  
     `docker build -t judgemod:latest .`
@@ -58,6 +60,7 @@ judgeMod | [judgeMod](https://github.com/talatmursalin/judgeMod/) | - | -
 - After each time judgeMod image build, you have to restart the docker-compose
 
     `docker-compose down && docker-compose up -d`
+
 ## Note
 Though this docker environment is built to serve a specific project, this environment can be used to use as developemnt setup for any Laravel/VueJs/ReactJs/NodeJs project. 
 
