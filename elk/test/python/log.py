@@ -9,7 +9,8 @@ test_logger.setLevel(logging.INFO)
 # test_logger.addHandler(logstash.LogstashHandler(host, 31311, version=1))
 test_logger.addHandler(logstash.TCPLogstashHandler(host, 6000, message_type='judgemod-main-log', version=1, tags=['judge', 'fileserver']))
 
-test_logger.error('test logging')
+test_logger.error('2020-15-12T10:49:21.174 MainThread botocore.hooks     DEBUG    Event creating-client-class.s3: calling handler <function add_generate_presigned_post at 0x7f4f545a1730>')
+test_logger.debug('2020-15-12T10:49:24.219 45 sustoj.resource_manager.thread_pool INFO     Released Thread : [ 45 ] from submission : 45')
 # test_logger.info('log python-logstash: test logstash info message.')
 # test_logger.warning('log python-logstash: test logstash warning message.')
 

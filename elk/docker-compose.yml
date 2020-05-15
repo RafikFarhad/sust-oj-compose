@@ -13,7 +13,7 @@ services:
       - ./volumes/elk-data:/var/lib/elasticsearch
       - ./configs/02-beats-input.conf:/etc/logstash/conf.d/02-beats-input.conf
       - ./configs/30-output.conf:/etc/logstash/conf.d/30-output.conf
-      - ./configs/judgemod-beat-logger.conf:/etc/logstash/conf.d/03-judgemod-beat-logger.conf
+      - ./configs/judgemod-logger.conf:/etc/logstash/conf.d/03-judgemod-logger.conf
       - ./configs/php-logger.conf:/etc/logstash/conf.d/04-php-logger.conf
     env_file:
       - .env
