@@ -185,7 +185,8 @@ services:
     image: judgemod:latest
     restart: unless-stopped
     volumes:
-      - ./src/judgeMod/config.ini:/home/judge/judgeMod/sustoj/config.ini
+      - ./src/judgeMod/sustoj/config.ini:/home/judge/judgeMod/sustoj/config.ini
+      - ./src/judgeMod/sustoj/xcore/executors/:/home/judge/judgeMod/sustoj/xcore/executors/
       - ./volumes/judgemod/cache/:/home/judge/judge_cache/
       - ./volumes/judgemod/sub_data/:/home/judge/sub_data/
       - ./volumes/judgemod/log/:/var/log/judgemod/

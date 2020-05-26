@@ -10,3 +10,6 @@
 [submodule "src/doCODE"]
 	path = src/doCODE
 	url = git@github.com:RafikFarhad/doCODE.git
+[submodule "src/judgeMod"]
+	path = src/judgeMod
+	url = git@github.com:talatmursalin/judgeMod.git
