@@ -33,8 +33,8 @@ services:
       - ./src/subCODE/:/var/www/subCODE
     # ports:
     #   - 9000:9000
-    # env_file:
-    #   - ./.env
+    env_file:
+      - ./.env
     restart: unless-stopped
     networks:
       - legacy
@@ -54,8 +54,8 @@ services:
       - ./src/masterCODE/:/var/www/masterCODE
     # ports:
     #   - 9001:9000
-    # env_file:
-    #   - ./.env
+    env_file:
+      - ./.env
     restart: unless-stopped
     # links:
     #   - nginx:auth.code.fs
@@ -76,8 +76,8 @@ services:
     restart: unless-stopped
     ports:
       - 3333:3333
-    # env_file:
-    #   - ./.env
+    env_file:
+      - ./.env
     depends_on:
       - redis
       - rabbitmq
@@ -98,6 +98,8 @@ services:
       - nginx:master.code.fs
     ports:
       - 4000:3000
+    env_file:
+      - ./.env
     depends_on:
       - php_master
     networks:
@@ -116,8 +118,8 @@ services:
     command: server /data
     networks:
       - legacy
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -181,12 +183,13 @@ services:
       RMQ_DEFAULT_PASSWORD: ${RMQ_PASSWORD}
       SERVICE_NAME: rabbitmq
       SERVICE_TAGS: dev
-  judgeMod:
-    image: judgemod:latest
+  judgemod:
+    build:
+      context: ./src/judgeMod
     restart: unless-stopped
     volumes:
       - ./src/judgeMod/sustoj/config.ini:/home/judge/judgeMod/sustoj/config.ini
-      - ./src/judgeMod/sustoj/xcore/executors/:/home/judge/judgeMod/sustoj/xcore/executors/
+      # - ./src/judgeMod/sustoj/xcore/executors/:/home/judge/judgeMod/sustoj/xcore/executors/
       - ./volumes/judgemod/cache/:/home/judge/judge_cache/
       - ./volumes/judgemod/sub_data/:/home/judge/sub_data/
       - ./volumes/judgemod/log/:/var/log/judgemod/
