@@ -26,20 +26,20 @@ services:
   php_sub:
     build:
       context: ./src/subCODE
-      # args:
-      #   BUILD: ${DOCKER_ENVIRONMENT}
+      args:
+        BUILD: DEV
     working_dir: /var/www/subCODE
     volumes:
       - ./src/subCODE/:/var/www/subCODE
-    # ports:
-    #   - 9000:9000
+    ports:
+      - 9002:9000
     env_file:
       - ./.env
     restart: unless-stopped
     networks:
       - legacy
-    # extra_hosts:
-    #   - "dockerhost:192.168.0.114"
+    extra_hosts:
+      - "dockerhost:192.168.0.114"
     environment:
       SERVICE_NAME: php_sub
       SERVICE_TAGS: dev
@@ -183,24 +183,24 @@ services:
       RMQ_DEFAULT_PASSWORD: ${RMQ_PASSWORD}
       SERVICE_NAME: rabbitmq
       SERVICE_TAGS: dev
-  judgemod:
-    build:
-      context: ./src/judgeMod
-    restart: unless-stopped
-    volumes:
-      - ./src/judgeMod/sustoj/config.ini:/home/judge/judgeMod/sustoj/config.ini
-      # - ./src/judgeMod/sustoj/xcore/executors/:/home/judge/judgeMod/sustoj/xcore/executors/
-      - ./volumes/judgemod/cache/:/home/judge/judge_cache/
-      - ./volumes/judgemod/sub_data/:/home/judge/sub_data/
-      - ./volumes/judgemod/log/:/var/log/judgemod/
-    extra_hosts:
-      - "dockerhost:192.168.0.114"
-      - "content.code.fs:192.168.0.114"
-    networks:
-      - legacy
-    environment:
-      SERVICE_NAME: judgeMod
-      SERVICE_TAGS: dev
+#  judgemod:
+#    build:
+#      context: ./src/judgeMod
+#    restart: unless-stopped
+#    volumes:
+#      - ./src/judgeMod/sustoj/config.ini:/home/judge/judgeMod/sustoj/config.ini
+#      - ./src/judgeMod/sustoj/xcore/executors/:/home/judge/judgeMod/sustoj/xcore/executors/
+#      - ./volumes/judgemod/cache/:/home/judge/judge_cache/
+#      - ./volumes/judgemod/sub_data/:/home/judge/sub_data/
+#      - ./volumes/judgemod/log/:/var/log/judgemod/
+#    extra_hosts:
+#      - "dockerhost:192.168.0.114"
+#      - "content.code.fs:192.168.0.114"
+#    networks:
+#      - legacy
+#    environment:
+#      SERVICE_NAME: judgeMod
+#      SERVICE_TAGS: dev
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
