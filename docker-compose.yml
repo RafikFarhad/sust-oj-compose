@@ -39,7 +39,7 @@ services:
     networks:
       - legacy
     extra_hosts:
-      - "dockerhost:192.168.0.114"
+      - "dockerhost:192.168.1.114"
     environment:
       SERVICE_NAME: php_sub
       SERVICE_TAGS: dev
@@ -62,7 +62,7 @@ services:
     networks:
       - legacy
     # extra_hosts:
-    #   - "dockerhost:192.168.0.112"
+    #   - "dockerhost:192.168.1.114"
     environment:
       SERVICE_NAME: php_master
       SERVICE_TAGS: dev
@@ -78,6 +78,8 @@ services:
       - 3333:3333
     env_file:
       - ./.env
+    # extra_hosts:
+    #   - "dockerhost:192.168.1.114"
     depends_on:
       - redis
       - rabbitmq
@@ -194,8 +196,8 @@ services:
 #      - ./volumes/judgemod/sub_data/:/home/judge/sub_data/
 #      - ./volumes/judgemod/log/:/var/log/judgemod/
 #    extra_hosts:
-#      - "dockerhost:192.168.0.114"
-#      - "content.code.fs:192.168.0.114"
+#      - "dockerhost:192.168.1.114"
+#      - "content.code.fs:192.168.1.114"
 #    networks:
 #      - legacy
 #    environment:
