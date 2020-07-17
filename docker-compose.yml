@@ -12,12 +12,12 @@ services:
       - ./src/masterCODE/:/var/www/masterCODE
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf/sites-enabled/:/etc/nginx/sites-enabled/
-    depends_on:
-      - php_sub
-      - php_master
-      - minio
-      - nodejs
-      - docode
+    # depends_on:
+    #   - php_sub
+    #   - php_master
+    #   - minio
+    #   - nodejs
+    #   - docode
     networks:
       - legacy
     environment:
@@ -91,7 +91,7 @@ services:
     build:
       context: ./src/doCODE
     working_dir: /var/www
-    # entrypoint: bash -c "yarn dev"
+    entrypoint: bash -c "yarn dev"
     volumes:
       - ./src/doCODE/:/var/www/
     restart: unless-stopped
