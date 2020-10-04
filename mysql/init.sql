@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS source_code_oj_v2;
+CREATE DATABASE IF NOT EXISTS master_telescope;
+CREATE DATABASE IF NOT EXISTS sub_telescope;
