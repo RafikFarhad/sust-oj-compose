@@ -1,69 +1,165 @@
 #!/bin/bash
 
-echo -e "... Source Code Online Judge ..."
-if ! test -f .env; then
-  echo -e "Copy .env.example as .env and try again."
-  exit 0
-fi
+function pretty() {
+  echo ""
+  echo $1
+  printf -v row "%${COLUMNS}s"; echo ${row// /#}
+}
 
-projects=( doCODE liveCODE masterCODE subCODE )
+function check_envs() {
+  pretty "Checking .env files"
 
-for project in ${projects[@]}
-do
-  if ! test -f "./src/${project}/.env"; then
-    echo -e "No .env file in ./src/${project}/.env"
+  if ! test -f .env; then
     echo -e "Copy .env.example as .env and try again."
     exit 0
   fi
-done
 
-if grep -Fxq "SESSION_DRIVER=redis" ./src/subCODE/.env; then
-  echo -e "Replace 'SESSION_DRIVER=redis' to 'SESSION_DRIVER=file' in file './src/subCODE/.env' for development build and run again."
-  exit 0
-fi
+  projects=(doCODE liveCODE masterCODE subCODE)
 
-if grep -Fxq "CACHE_DRIVER=redis" ./src/subCODE/.env; then
-  echo -e "Replace 'CACHE_DRIVER=redis' to 'CACHE_DRIVER=file' in file './src/subCODE/.env' for development build and run again."
-  exit 0
-fi
+  for project in ${projects[@]}; do
+    if ! test -f "./src/${project}/.env"; then
+      echo -e "No .env file in ./src/${project}/.env"
+      echo -e "Copy .env.example as .env and try again."
+      exit 0
+    fi
+  done
 
-if grep -Fxq "SESSION_DRIVER=redis" ./src/masterCODE/.env; then
-  echo -e "Replace 'SESSION_DRIVER=redis' to 'SESSION_DRIVER=file' in file './src/masterCODE/.env' for development build and run again."
-  exit 0
-fi
+  if grep -Fxq "SESSION_DRIVER=redis" ./src/subCODE/.env; then
+    echo -e "Replace 'SESSION_DRIVER=redis' to 'SESSION_DRIVER=file' in file './src/subCODE/.env' for development build and run again."
+    exit 0
+  fi
 
-if grep -Fxq "CACHE_DRIVER=redis" ./src/masterCODE/.env; then
-  echo -e "Replace 'CACHE_DRIVER=redis' to 'CACHE_DRIVER=file' in file './src/masterCODE/.env' for development build and run again."
-  exit 0
-fi
+  if grep -Fxq "CACHE_DRIVER=redis" ./src/subCODE/.env; then
+    echo -e "Replace 'CACHE_DRIVER=redis' to 'CACHE_DRIVER=file' in file './src/subCODE/.env' for development build and run again."
+    exit 0
+  fi
 
-docker-compose build
+  if grep -Fxq "SESSION_DRIVER=redis" ./src/masterCODE/.env; then
+    echo -e "Replace 'SESSION_DRIVER=redis' to 'SESSION_DRIVER=file' in file './src/masterCODE/.env' for development build and run again."
+    exit 0
+  fi
 
+  if grep -Fxq "CACHE_DRIVER=redis" ./src/masterCODE/.env; then
+    echo -e "Replace 'CACHE_DRIVER=redis' to 'CACHE_DRIVER=file' in file './src/masterCODE/.env' for development build and run again."
+    exit 0
+  fi
+}
 
-docker-compose pull --ignore-pull-failures
+function docker_image_builds() {
+  pretty "Docker image build/pull"
 
-# subCODE Dependency Installation
+  docker-compose build
 
-docker run -v "$PWD/src/subCODE/":"/var/www/subCODE" --entrypoint bash sust-oj-compose_php_sub -c "cd /var/www/subCODE && COMPOSER_MEMORY_LIMIT=1 composer --no-cache --no-interaction --no-progress --profile --prefer-dist update && php artisan key:generate --force"
+  docker-compose pull --ignore-pull-failures
+}
 
+function subcode_dependency_resolve() {
+  pretty "subCODE dependency resolve"
 
-docker run -v "$PWD/src/subCODE/":"/var/www/subCODE" --entrypoint bash sust-oj-compose_livecode -c "cd /var/www/subCODE && yarn && yarn prod"
+  # subCODE Dependency Installation
+  docker run -v "$PWD/src/subCODE/":"/var/www/subCODE" --entrypoint bash sust-oj-compose_php_sub -c "cd /var/www/subCODE && COMPOSER_MEMORY_LIMIT=1 composer --no-cache --no-interaction --no-progress --profile --prefer-dist install && php artisan key:generate --force"
 
-# masterCODE Dependency Installation
+  docker run -v "$PWD/src/subCODE/":"/var/www/subCODE" --entrypoint bash sust-oj-compose_livecode -c "cd /var/www/subCODE && yarn && yarn prod"
+}
 
-docker run -v "$PWD/src/masterCODE/":"/var/www/masterCODE" --entrypoint bash sust-oj-compose_mastercode -c "cd /var/www/masterCODE && COMPOSER_MEMORY_LIMIT=1 composer --no-cache --no-interaction --no-progress --profile --prefer-dist update && php artisan key:generate --force && php artisan jwt:secret -f"
+function mastercode_dependency_resolve() {
+  pretty "masterCODE dependency resolve"
 
-# doCODE Dependency Installation
+  # masterCODE Dependency Installation
+  docker run -v "$PWD/src/masterCODE/":"/var/www/masterCODE" --entrypoint bash sust-oj-compose_mastercode -c "cd /var/www/masterCODE && COMPOSER_MEMORY_LIMIT=1 composer --no-cache --no-interaction --no-progress --profile --prefer-dist install && php artisan key:generate --force && php artisan jwt:secret -f"
+}
 
-docker run -v "$PWD/src/doCODE/":"/var/www" --entrypoint bash sust-oj-compose_docode -c "cd /var/www && yarn"
+function livecode_dependency_resolve() {
+  pretty "liveCODE dependency resolve"
 
-# liveCODE Dependency Installation
-docker run -v "$PWD/src/liveCODE/":"/var/www/liveCODE" --entrypoint bash sust-oj-compose_livecode -c "cd /var/www/liveCODE && yarn"
+  # liveCODE Dependency Installation
+  docker run -v "$PWD/src/liveCODE/":"/var/www/liveCODE" --entrypoint bash sust-oj-compose_livecode -c "cd /var/www/liveCODE && yarn"
 
-# Minio bucket initiator
-docker run -v "$PWD/volumes/minio":"/data" --entrypoint sh minio/minio:RELEASE.2020-01-25T02-50-51Z -c "mkdir -p /data/judge"
+}
 
+function docode_dependency_resolve() {
+  pretty "doCODE dependency resolve"
 
-echo -e "... Setup Complete ..."
+  # doCODE Dependency Installation
+  docker run -v "$PWD/src/doCODE/":"/var/www" --entrypoint bash sust-oj-compose_docode -c "cd /var/www && yarn"
+}
 
-echo -e "Run -> docker-compose up -d"
+function minio_init() {
+  pretty "Minio init"
+
+  # Minio bucket initiator
+  docker run -v "$PWD/volumes/minio":"/data" --entrypoint sh minio/minio:RELEASE.2020-01-25T02-50-51Z -c "mkdir -p /data/judge"
+}
+
+function main() {
+
+  echo -e "... Source Code Online Judge ..."
+
+  options=(
+    "Run All"
+    "Check ENV files"
+    "Docker image builds"
+    "subCODE    dependency resolve"
+    "masterCODE dependency resolve"
+    "liveCODE   dependency resolve"
+    "doCODE     dependency resolve"
+    "minio init"
+  )
+
+  echo "Select task:"
+  actual_columns=$COLUMNS
+  COLUMNS=12
+  PS3="Pick an option: "
+  select opt in "${options[@]}"; do
+    COLUMNS=$actual_columns
+    for single in ${REPLY[@]}; do
+      case "$single" in
+
+      1)
+        echo -e "Executing all"
+        check_envs
+        docker_image_builds
+        subcode_dependency_resolve
+        mastercode_dependency_resolve
+        livecode_dependency_resolve
+        docode_dependency_resolve
+        minio_init
+        ;;
+      2)
+        check_envs
+        ;;
+      3)
+        docker_image_builds
+        ;;
+      4)
+        subcode_dependency_resolve
+        ;;
+      5)
+        mastercode_dependency_resolve
+        ;;
+      6)
+        livecode_dependency_resolve
+        ;;
+      7)
+        docode_dependency_resolve
+        ;;
+      8)
+        minio_init
+        ;;
+      *)
+        pretty "$single is an invalid option."
+        ;;
+      esac
+    done
+    break
+  done
+
+  echo ""
+
+  echo -e "... Task Complete ..."
+
+  echo -e "Run -> docker-compose up -d"
+
+}
+
+main
