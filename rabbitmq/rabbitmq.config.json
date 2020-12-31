@@ -1,0 +1,100 @@
+{
+  "rabbit_version": "3.7.18",
+  "users": [
+    {
+      "name": "admin",
+      "password_hash": "tpyt74WESm38U+KDbaCaq9dqPsMW7y1U5DIwKk3cw9+rZXdD",
+      "tags": "administrator"
+    },
+    {
+      "name": "python_client",
+      "password_hash": "tpyt74WESm38U+KDbaCaq9dqPsMW7y1U5DIwKk3cw9+rZXdD",
+      "tags": "administrator"
+    },
+    {
+      "name": "web_client",
+      "password_hash": "tpyt74WESm38U+KDbaCaq9dqPsMW7y1U5DIwKk3cw9+rZXdD",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [{ "name": "/" }],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "python_client",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "web_client",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "parameters": [],
+  "policies": [],
+  "queues": [
+    {
+      "name": "submissions",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "notifications",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": { "x-message-ttl": 600000 }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "notification_exc",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "submission_exc",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "notification_exc",
+      "vhost": "/",
+      "destination": "notifications",
+      "destination_type": "queue",
+      "routing_key": "push_to_notifications",
+      "arguments": {}
+    },
+    {
+      "source": "submission_exc",
+      "vhost": "/",
+      "destination": "submissions",
+      "destination_type": "queue",
+      "routing_key": "push_to_submissions",
+      "arguments": {}
+    }
+  ]
+}

@@ -2,6 +2,7 @@ version: "3.7"
 
 services:
   nginx:
+    container_name: soc_nginx
     build:
       context: ./nginx
     ports:
@@ -12,188 +13,196 @@ services:
       - ./src/masterCODE/:/var/www/masterCODE
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf/sites-enabled/:/etc/nginx/sites-enabled/
-    # depends_on:
-    #   - subcode
-    #   - mastercode
-    #   - minio
-    #   - livecode
-    #   - docode
+    depends_on:
+      - db_mysql
+      - subcode
+      - mastercode
+      - docode
+      - livecode
+      - minio
     networks:
       - legacy
-    environment:
-      SERVICE_NAME: nginx
-      SERVICE_TAGS: dev
   subcode:
+    container_name: soc_subcode
     build:
       context: ./src/subCODE
+      dockerfile: ./Dockerfile.dev
       args:
-        BUILD: DEV
+        BUILD: ${DENV}
+        DEBUG_IDE_KEY: subdebug
+        DEBUG_PORT: 9000
     working_dir: /var/www/subCODE
     volumes:
       - ./src/subCODE/:/var/www/subCODE
-    ports:
-      - 8080:9000
     env_file:
       - ./.env
     restart: unless-stopped
+    ports:
+      - 8080:9000
     networks:
       - legacy
     extra_hosts:
-      - dockerhost:${HOST_IP}
-      - live.code.fs:${HOST_IP}
-      - content.code.fs:${HOST_IP}
+      - code.local:${HOST_IP}
+      - master.code.local:${HOST_IP}
+      - judge.code.local:${HOST_IP}
+      - live.code.local:${HOST_IP}
+      - redis.code.local:${HOST_IP}
+      - rmq.code.local:${HOST_IP}
+      - content.code.local:${HOST_IP}
+      - mysql.code.local:${HOST_IP}
     environment:
-      SERVICE_NAME: subcode
-      SERVICE_TAGS: dev
+      - DB_PASSWORD=${DB_MYSQL_PASSWORD}
   mastercode:
+    container_name: soc_mastercode
     build:
       context: ./src/masterCODE
-      # args:
-      #   BUILD: ${DOCKER_ENVIRONMENT}
-      #   DEBUG_PORT: 9050
+      dockerfile: ./Dockerfile.dev
+      args:
+        BUILD: ${DENV}
+        DEBUG_IDE_KEY: masterdebug
+        DEBUG_PORT: 9001
     working_dir: /var/www/masterCODE
     volumes:
       - ./src/masterCODE/:/var/www/masterCODE
-    ports:
-      - 8081:9000
     env_file:
       - ./.env
     restart: unless-stopped
+    ports:
+      - 8081:9000
     networks:
       - legacy
     extra_hosts:
-      - dockerhost:${HOST_IP}
-      - content.code.fs:${HOST_IP}
+      - code.local:${HOST_IP}
+      - master.code.local:${HOST_IP}
+      - judge.code.local:${HOST_IP}
+      - live.code.local:${HOST_IP}
+      - redis.code.local:${HOST_IP}
+      - rmq.code.local:${HOST_IP}
+      - content.code.local:${HOST_IP}
+      - mysql.code.local:${HOST_IP}
     environment:
-      SERVICE_NAME: mastercode
-      SERVICE_TAGS: dev
+      - DB_PASSWORD=${DB_MYSQL_PASSWORD}
   livecode:
+    container_name: soc_livecode
     build:
       context: ./src/liveCODE
+      dockerfile: ./Dockerfile.dev
     working_dir: /var/www/liveCODE
     entrypoint: bash -c "yarn dev"
     volumes:
       - ./src/liveCODE/:/var/www/liveCODE/
       - ./src/subCODE/:/var/www/subCODE/
-    restart: unless-stopped
-    ports:
-      - 8082:3333
     env_file:
       - ./.env
-    # extra_hosts:
-    #   - "dockerhost:192.168.1.114"
+    restart: unless-stopped
+    ports:
+      - 3333:3333
+    networks:
+      - legacy
+    extra_hosts:
+      - code.local:${HOST_IP}
+      - master.code.local:${HOST_IP}
+      - judge.code.local:${HOST_IP}
+      - live.code.local:${HOST_IP}
+      - redis.code.local:${HOST_IP}
+      - rmq.code.local:${HOST_IP}
     depends_on:
       - redis
       - rabbitmq
-    networks:
-      - legacy
-    environment:
-      SERVICE_NAME: livecode
-      SERVICE_TAGS: dev
   docode:
+    container_name: soc_docode
     build:
       context: ./src/doCODE
+      dockerfile: ./Dockerfile.dev
     working_dir: /var/www
     entrypoint: bash -c "yarn dev"
     volumes:
       - ./src/doCODE/:/var/www/
-    restart: unless-stopped
-    links:
-      - nginx:master.code.fs
-    ports:
-      - 8083:3000
     env_file:
       - ./.env
-    extra_hosts:
-      - dockerhost:${HOST_IP}
-      - live.code.fs:${HOST_IP}
-    depends_on:
-      - mastercode
+    restart: unless-stopped
+    ports:
+      - 8083:3000
     networks:
       - legacy
+    extra_hosts:
+      - code.local:${HOST_IP}
+      - master.code.local:${HOST_IP}
+      - judge.code.local:${HOST_IP}
+      - live.code.local:${HOST_IP}
+      - redis.code.local:${HOST_IP}
+      - rmq.code.local:${HOST_IP}
+      - content.code.local:${HOST_IP}
     environment:
       HOST: "0.0.0.0"
-      SERVICE_NAME: docode
-      SERVICE_TAGS: dev
-  db:
+  db_mysql:
+    container_name: soc_mysql
     image: mysql:5.7.22
+    entrypoint: sh -c "/usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     volumes:
       - ./volumes/dbdata/:/var/lib/mysql/
       - ./mysql/my.cnf:/etc/mysql/my.cnf
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
-    container_name: db
     restart: unless-stopped
     tty: true
     ports:
-      - "8084:3306"
-    entrypoint: sh -c "/usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
-    networks:
-      - legacy
+      - MYSQL_ROOT_PASSWORD=${DB_MYSQL_PASSWORD}
+      - MYSQL_ROOT_HOST=%
   redis:
+    container_name: soc_redis
     image: redis:5.0.5
-    container_name: redis
-    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
     tty: true
     ports:
-      - "8085:6379"
+      - "6379:6379"
     volumes:
       - ./volumes/redisdata/:/data/
-    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
-    environment:
-      SERVICE_TAGS: dev
-      SERVICE_NAME: redis
+    restart: unless-stopped
     networks:
       - legacy
   rabbitmq:
+    container_name: soc_rabbitmq
     build:
       context: ./rabbitmq
     ports:
-      - 8086:5672
-      - 8087:15672
-    command: rabbitmq-server
+      - 5672:5672
+      - 15672:15672
+    # command: rabbitmq-server
     volumes:
       - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
-      - ./src/subCODE/rabbitmq.config.json:/etc/rabbitmq/rabbitmq.config.json
+      - ./rabbitmq/rabbitmq.config.json:/etc/rabbitmq/rabbitmq.config.json
       - ./volumes/rabbitmqdata/:/var/lib/rabbitmq/
     restart: unless-stopped
     networks:
       - legacy
-    environment:
-      RMQ_DEFAULT_USER: web_client
-      RMQ_DEFAULT_PASSWORD: ${RMQ_PASSWORD}
-      SERVICE_NAME: rabbitmq
-      SERVICE_TAGS: dev
   minio:
-    image: minio/minio:RELEASE.2020-01-25T02-50-51Z
+    container_name: soc_minio
+    image: minio/minio:RELEASE.2020-12-29T23-29-29Z
     volumes:
       - ./volumes/minio:/data
-    ports:
-      - 8088:9000
+    env_file:
+      - ./.env
     restart: unless-stopped
+    ports:
+      - 8084:9000
     command: server /data
     networks:
       - legacy
-    env_file:
-      - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8088/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:8084/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
     environment:
       MINIO_ACCESS_KEY: root
       MINIO_SECRET_KEY: ${MINIO_PASSWORD}
-      SERVICE_NAME: minio
-      SERVICE_TAGS: dev
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: phpmyadmin
+    container_name: soc_phpmyadmin
     environment:
-      - PMA_HOST=db
+      - PMA_HOST=mysql.code.local
     restart: always
     ports:
       - 50:80
@@ -201,6 +210,8 @@ services:
       - ./volumes/pma/:/sessions
     networks:
       - legacy
+    extra_hosts:
+      - mysql.code.local:${HOST_IP}
 networks:
   legacy:
     driver: bridge
