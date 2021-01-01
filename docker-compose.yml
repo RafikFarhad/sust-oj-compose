@@ -30,7 +30,7 @@ services:
       args:
         BUILD: ${DENV}
         DEBUG_IDE_KEY: subdebug
-        DEBUG_PORT: 9000
+        DEBUG_PORT: 9050
     working_dir: /var/www/subCODE
     volumes:
       - ./src/subCODE/:/var/www/subCODE
@@ -39,6 +39,7 @@ services:
     restart: unless-stopped
     ports:
       - 8080:9000
+      - 9050:9050 # Debug Port
     networks:
       - legacy
     extra_hosts:
@@ -52,6 +53,8 @@ services:
       - mysql.code.local:${HOST_IP}
     environment:
       - DB_PASSWORD=${DB_MYSQL_PASSWORD}
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
   mastercode:
     container_name: soc_mastercode
     build:
@@ -60,7 +63,7 @@ services:
       args:
         BUILD: ${DENV}
         DEBUG_IDE_KEY: masterdebug
-        DEBUG_PORT: 9001
+        DEBUG_PORT: 9051
     working_dir: /var/www/masterCODE
     volumes:
       - ./src/masterCODE/:/var/www/masterCODE
@@ -69,6 +72,7 @@ services:
     restart: unless-stopped
     ports:
       - 8081:9000
+      - 9051:9051 # Debug Port
     networks:
       - legacy
     extra_hosts:
@@ -82,6 +86,8 @@ services:
       - mysql.code.local:${HOST_IP}
     environment:
       - DB_PASSWORD=${DB_MYSQL_PASSWORD}
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
   livecode:
     container_name: soc_livecode
     build:
@@ -96,7 +102,7 @@ services:
       - ./.env
     restart: unless-stopped
     ports:
-      - 3333:3333
+      - 3000:3000
     networks:
       - legacy
     extra_hosts:
@@ -137,17 +143,23 @@ services:
       HOST: "0.0.0.0"
   db_mysql:
     container_name: soc_mysql
-    image: mysql:5.7.22
+    build:
+      context: ./mysql
     entrypoint: sh -c "/usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     volumes:
       - ./volumes/dbdata/:/var/lib/mysql/
-      - ./mysql/my.cnf:/etc/mysql/my.cnf
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./mysql/my.cnf:/etc/mysql/my.cnf
+      - ./mysql/init_user.sql:/docker-entrypoint-initdb.d/init_user.sql
+      - ./src/subcode/database/sql/:/docker-entrypoint-initdb.d/
     restart: unless-stopped
     tty: true
     ports:
       - "3306:3306"
+    extra_hosts:
+      - mysql.code.local:${HOST_IP}
     environment:
+      - MYSQL_USER=db_user
+      - MYSQL_PASSWORD=${DB_MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${DB_MYSQL_PASSWORD}
       - MYSQL_ROOT_HOST=%
   redis:
