@@ -23,8 +23,7 @@ function check_envs() {
     if ! test -f "./src/${project}/.env"; then
       echo -e "No .env file in ./src/${project}/.env"
       cp "./src/${project}/.env.example" "./src/${project}/.env"
-      echo -e ".env created fro .env.example"
-      exit 0
+      echo -e ".env created from .env.example"
     fi
   done
 }
@@ -39,7 +38,8 @@ function docker_image_builds() {
 
 function subcode_dependency_resolve() {
   pretty "subCODE dependency resolve"
-
+  # Changing .env file permission as it will be written by docker
+  chmod 777 -R src/subCODE/.env
   # subCODE Dependency Installation
   docker run -v "$PWD/src/subCODE/":"/var/www/subCODE" \
     --workdir /var/www/subCODE \
@@ -55,7 +55,8 @@ function subcode_dependency_resolve() {
 
 function mastercode_dependency_resolve() {
   pretty "masterCODE dependency resolve"
-
+  # Changing .env file permission as it will be written by docker
+  chmod 777 -R src/masterCODE/.env
   # masterCODE Dependency Installation
   docker run -v "$PWD/src/masterCODE/":"/var/www/masterCODE" \
     --workdir /var/www/masterCODE \
