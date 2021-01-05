@@ -20,8 +20,6 @@ services:
       - docode
       - livecode
       - minio
-    networks:
-      - legacy
   subcode:
     container_name: soc_subcode
     build:
@@ -40,8 +38,6 @@ services:
     ports:
       - 8080:9000
       - 9050:9050 # Debug Port
-    networks:
-      - legacy
     extra_hosts:
       - code.local:${HOST_IP}
       - master.code.local:${HOST_IP}
@@ -73,8 +69,6 @@ services:
     ports:
       - 8081:9000
       - 9051:9051 # Debug Port
-    networks:
-      - legacy
     extra_hosts:
       - code.local:${HOST_IP}
       - master.code.local:${HOST_IP}
@@ -103,8 +97,6 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
-    networks:
-      - legacy
     extra_hosts:
       - code.local:${HOST_IP}
       - master.code.local:${HOST_IP}
@@ -129,8 +121,6 @@ services:
     restart: unless-stopped
     ports:
       - 8083:3000
-    networks:
-      - legacy
     extra_hosts:
       - code.local:${HOST_IP}
       - master.code.local:${HOST_IP}
@@ -148,9 +138,7 @@ services:
     entrypoint: sh -c "/usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     volumes:
       - ./volumes/dbdata/:/var/lib/mysql/
-      # - ./mysql/my.cnf:/etc/mysql/my.cnf
-      - ./mysql/init_user.sql:/docker-entrypoint-initdb.d/init_user.sql
-      - ./src/subcode/database/sql/:/docker-entrypoint-initdb.d/
+      - ./src/subCODE/database/sql/:/docker-entrypoint-initdb.d/
     restart: unless-stopped
     tty: true
     ports:
@@ -172,8 +160,6 @@ services:
     volumes:
       - ./volumes/redisdata/:/data/
     restart: unless-stopped
-    networks:
-      - legacy
   rabbitmq:
     container_name: soc_rabbitmq
     build:
@@ -187,8 +173,6 @@ services:
       - ./rabbitmq/rabbitmq.config.json:/etc/rabbitmq/rabbitmq.config.json
       - ./volumes/rabbitmqdata/:/var/lib/rabbitmq/
     restart: unless-stopped
-    networks:
-      - legacy
   minio:
     container_name: soc_minio
     image: minio/minio:RELEASE.2020-12-29T23-29-29Z
@@ -200,8 +184,6 @@ services:
     ports:
       - 8084:9000
     command: server /data
-    networks:
-      - legacy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/minio/health/live"]
       interval: 30s
@@ -220,10 +202,5 @@ services:
       - 50:80
     volumes:
       - ./volumes/pma/:/sessions
-    networks:
-      - legacy
     extra_hosts:
       - mysql.code.local:${HOST_IP}
-networks:
-  legacy:
-    driver: bridge

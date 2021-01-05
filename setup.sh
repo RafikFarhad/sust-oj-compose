@@ -38,11 +38,10 @@ function docker_image_builds() {
 
 function subcode_dependency_resolve() {
   pretty "subCODE dependency resolve"
-  # Changing .env file permission as it will be written by docker
-  chmod 777 -R src/subCODE/.env
   # subCODE Dependency Installation
   docker run -v "$PWD/src/subCODE/":"/var/www/subCODE" \
     --workdir /var/www/subCODE \
+    --user 1000:1000 \
     --env SESSION_DRIVER=file \
     --env CACHE_DRIVER=array \
     --entrypoint bash sust-oj-compose_subcode \
@@ -55,11 +54,10 @@ function subcode_dependency_resolve() {
 
 function mastercode_dependency_resolve() {
   pretty "masterCODE dependency resolve"
-  # Changing .env file permission as it will be written by docker
-  chmod 777 -R src/masterCODE/.env
   # masterCODE Dependency Installation
   docker run -v "$PWD/src/masterCODE/":"/var/www/masterCODE" \
     --workdir /var/www/masterCODE \
+    --user 1000:1000 \
     --env SESSION_DRIVER=file \
     --env CACHE_DRIVER=array \
     --entrypoint bash sust-oj-compose_mastercode -c "COMPOSER_MEMORY_LIMIT=-1 composer --no-cache --no-interaction --no-progress --profile --prefer-dist install && php artisan key:generate --force && php artisan jwt:secret -f"
@@ -71,6 +69,7 @@ function livecode_dependency_resolve() {
   # liveCODE Dependency Installation
   docker run -v "$PWD/src/liveCODE/":"/var/www/liveCODE" \
     --workdir /var/www/liveCODE \
+    --user 1000:1000 \
     --entrypoint bash sust-oj-compose_livecode -c "yarn"
 
 }
@@ -81,6 +80,7 @@ function docode_dependency_resolve() {
   # doCODE Dependency Installation
   docker run -v "$PWD/src/doCODE/":"/var/www/doCODE" \
     --workdir /var/www/doCODE \
+    --user 1000:1000 \
     --entrypoint bash sust-oj-compose_docode -c "yarn"
 }
 
