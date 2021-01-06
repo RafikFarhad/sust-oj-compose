@@ -41,29 +41,30 @@
 3. Clone this repo by this command:
 
    - `git clone --recursive git@github.com:RafikFarhad/sust-oj-compose.git`
-   - `git update --submodules`
    - Copy `.env.example` as `.env` and fill up values with string containing at least 10 character and digit
    - `HOST_IP` should be the ip adsress of the host pc.
 
-4. Run `bash setup.sh` and choose `1` for the first time. This command will pull/build docker images, run dependency installation and some housekeeping tasks.
+4. Run `./setup.sh` and choose `1` for the first time. This command will pull/build docker images, run dependency installation and some housekeeping tasks.
 5. Run `docker-compose up` or `docker-compose up -d` to deploy the system.
 
 ## Keep Up To Date
 
 If any of the submodule update on this system, you can fecth and deploy the updates by following steps:
 
-1. `git pull --recurse-submodules`
-2. If submodule updates it dependency, then you have to run
+1. `git pull --recurse-submodules` && `git submodule update --recursive`
+2. If any of the submodule updates its dependency, then you have to run
 
    `bash setup.sh`
 
    to update, otherwise this step is optional.
 
-3. `docker-compose stop && docker-compose down -d`
+3. `docker-compose stop && docker-compose up -d`
 
 ## Note
 
-Though this docker environment is built to serve a specific project, this environment can be used to use as developemnt setup for any Laravel/VueJs/ReactJs/NodeJs project.
+- This environment by default assumes that your Linux system user id and group id is `1000:1000`. If it is not then you may face some file permission related issue on linux system. 
+
+- Though this docker environment is built to serve a specific project, this environment can be used to use as developemnt setup for any Laravel/VueJs/ReactJs/NodeJs project.
 
 ## Feel free to:
 
