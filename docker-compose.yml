@@ -138,7 +138,11 @@ services:
     entrypoint: sh -c "/usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     volumes:
       - ./volumes/dbdata/:/var/lib/mysql/
-      - ./src/subCODE/database/sql/:/docker-entrypoint-initdb.d/
+      - ./mysql/init_user.sql:/docker-entrypoint-initdb.d/init_user.sql
+      - ./src/subCODE/database/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/subCODE/database/sql/source_code_oj.sql:/docker-entrypoint-initdb.d/source_code_oj.sql
+      - ./src/subCODE/database/sql/master_telescope.sql:/docker-entrypoint-initdb.d/master_telescope.sql
+      - ./src/subCODE/database/sql/sub_telescope.sql:/docker-entrypoint-initdb.d/sub_telescope.sql
     restart: unless-stopped
     tty: true
     ports:
