@@ -2,23 +2,37 @@
   "rabbit_version": "3.7.18",
   "users": [
     {
-      "name": "admin",
+      "name": "web_client",
       "password_hash": "tpyt74WESm38U+KDbaCaq9dqPsMW7y1U5DIwKk3cw9+rZXdD",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "administrator"
     },
     {
       "name": "python_client",
       "password_hash": "tpyt74WESm38U+KDbaCaq9dqPsMW7y1U5DIwKk3cw9+rZXdD",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "administrator"
     },
     {
-      "name": "web_client",
+      "name": "admin",
       "password_hash": "tpyt74WESm38U+KDbaCaq9dqPsMW7y1U5DIwKk3cw9+rZXdD",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "administrator"
     }
   ],
-  "vhosts": [{ "name": "/" }],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
   "permissions": [
+    {
+      "user": "web_client",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
     {
       "user": "admin",
       "vhost": "/",
@@ -32,20 +46,20 @@
       "configure": ".*",
       "write": ".*",
       "read": ".*"
-    },
-    {
-      "user": "web_client",
-      "vhost": "/",
-      "configure": ".*",
-      "write": ".*",
-      "read": ".*"
     }
   ],
+  "topic_permissions": [],
   "parameters": [],
+  "global_parameters": [
+    {
+      "name": "cluster_name",
+      "value": "rabbit-master@sourcecode"
+    }
+  ],
   "policies": [],
   "queues": [
     {
-      "name": "submissions",
+      "name": "emails",
       "vhost": "/",
       "durable": true,
       "auto_delete": false,
@@ -56,12 +70,21 @@
       "vhost": "/",
       "durable": true,
       "auto_delete": false,
-      "arguments": { "x-message-ttl": 600000 }
+      "arguments": {
+        "x-message-ttl": 600000
+      }
+    },
+    {
+      "name": "submissions",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     }
   ],
   "exchanges": [
     {
-      "name": "notification_exc",
+      "name": "submission_exc",
       "vhost": "/",
       "type": "direct",
       "durable": true,
@@ -70,7 +93,16 @@
       "arguments": {}
     },
     {
-      "name": "submission_exc",
+      "name": "email_exc",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "notification_exc",
       "vhost": "/",
       "type": "direct",
       "durable": true,
@@ -80,6 +112,14 @@
     }
   ],
   "bindings": [
+    {
+      "source": "email_exc",
+      "vhost": "/",
+      "destination": "emails",
+      "destination_type": "queue",
+      "routing_key": "push_to_emails",
+      "arguments": {}
+    },
     {
       "source": "notification_exc",
       "vhost": "/",
@@ -98,3 +138,4 @@
     }
   ]
 }
+

@@ -2,6 +2,11 @@
 
 SPACES="            "
 
+# Custom date to commit and author
+read -p "Commit/author date[now]:" CUSTOM_DATE
+CUSTOM_DATE=${CUSTOM_DATE:-date}
+CUSTOM_DATE_STR=$($CUSTOM_DATE)
+
 function tagPuhser() {
 
     echo "************************************************"
@@ -14,7 +19,7 @@ function tagPuhser() {
 
     echo "[$2]: Current tag: $CURRENT_TAG"
 
-    read -p "[$2]: Enter the new tag name [none]:" -i "none" INPUT
+    read -p "[$2]: Enter the new tag name [none]:" INPUT
     TAG=${INPUT:-"none"}
 
     if [ "$TAG" = "none" ] ;
@@ -22,10 +27,10 @@ function tagPuhser() {
         echo "[$2]: No new tag"
     else
         echo "[$2]: Processing Tag: $TAG"
-        COMMENT="Update till: $(date)"
-        read -p "[$2]: Comment for the tag [$COMMENT]: " -i "$COMMENT" INPUT
+        COMMENT="Update till: $CUSTOM_DATE_STR"
+        read -p "[$2]: Comment for the tag [$COMMENT]: " INPUT
         COMMENT=${INPUT:-"$COMMENT"}
-        git -C $DIR tag -a -m "$COMMENT" "$TAG"
+        GIT_COMMITTER_DATE="$CUSTOM_DATE_STR" GIT_AUTHOR_DATE="$CUSTOM_DATE_STR" git -C $DIR tag -a -m "$COMMENT" "$TAG"
         git -C $DIR push origin "$TAG"
     fi
     echo ""

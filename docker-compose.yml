@@ -20,6 +20,8 @@ services:
       - docode
       - livecode
       - minio
+    networks:
+      - ojcompose
   subcode:
     container_name: soc_subcode
     build:
@@ -51,6 +53,8 @@ services:
       - DB_PASSWORD=${DB_MYSQL_PASSWORD}
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
+    networks:
+      - ojcompose
   mastercode:
     container_name: soc_mastercode
     build:
@@ -82,6 +86,8 @@ services:
       - DB_PASSWORD=${DB_MYSQL_PASSWORD}
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
+    networks:
+      - ojcompose
   livecode:
     container_name: soc_livecode
     build:
@@ -107,6 +113,8 @@ services:
     depends_on:
       - redis
       - rabbitmq
+    networks:
+      - ojcompose
   docode:
     container_name: soc_docode
     build:
@@ -131,6 +139,8 @@ services:
       - content.code.local:${HOST_IP}
     environment:
       HOST: "0.0.0.0"
+    networks:
+      - ojcompose
   db_mysql:
     container_name: soc_mysql
     build:
@@ -154,6 +164,8 @@ services:
       - MYSQL_PASSWORD=${DB_MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${DB_MYSQL_PASSWORD}
       - MYSQL_ROOT_HOST=%
+    networks:
+      - ojcompose
   redis:
     container_name: soc_redis
     image: redis:5.0.5
@@ -164,6 +176,8 @@ services:
     volumes:
       - ./volumes/redisdata/:/data/
     restart: unless-stopped
+    networks:
+      - ojcompose
   rabbitmq:
     container_name: soc_rabbitmq
     build:
@@ -177,6 +191,8 @@ services:
       - ./rabbitmq/rabbitmq.config.json:/etc/rabbitmq/rabbitmq.config.json
       - ./volumes/rabbitmqdata/:/var/lib/rabbitmq/
     restart: unless-stopped
+    networks:
+      - ojcompose
   minio:
     container_name: soc_minio
     image: minio/minio:RELEASE.2021-01-08T21-18-21Z
@@ -196,6 +212,8 @@ services:
     environment:
       MINIO_ROOT_USER: root
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    networks:
+      - ojcompose
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: soc_phpmyadmin
@@ -208,3 +226,8 @@ services:
       - ./volumes/pma/:/sessions
     extra_hosts:
       - mysql.code.local:${HOST_IP}
+    networks:
+      - ojcompose
+networks:
+  ojcompose:
+     driver: bridge
