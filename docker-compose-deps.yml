@@ -1,0 +1,108 @@
+version: "3.7"
+
+services:
+  nginx:
+    container_name: soc_nginx
+    build:
+      context: ./nginx
+    ports:
+      - 80:80
+    restart: unless-stopped
+    volumes:
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf/sites-enabled/content.conf:/etc/nginx/sites-enabled/content.conf
+      - ./nginx/conf/sites-enabled/rmqdash.conf:/etc/nginx/sites-enabled/rmqdash.conf
+    depends_on:
+      - db_mysql
+      - minio
+    networks:
+      - ojcompose
+  db_mysql:
+    container_name: soc_mysql
+    # platform: linux/x86_64
+    build:
+      context: ./mysql
+    entrypoint: sh -c "/usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+    volumes:
+      - ./volumes/dbdata/:/var/lib/mysql/
+      - ./mysql/init_user.sql:/docker-entrypoint-initdb.d/init_user.sql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./mysql/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    extra_hosts:
+      - mysql.code.local:${HOST_IP}
+    environment:
+      - MYSQL_USER=db_user
+      - MYSQL_PASSWORD=${DB_MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_MYSQL_PASSWORD}
+      - MYSQL_ROOT_HOST=%
+    networks:
+      - ojcompose
+  redis:
+    container_name: soc_redis
+    image: redis:5.0.5
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    tty: true
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./volumes/redisdata/:/data/
+    restart: unless-stopped
+    networks:
+      - ojcompose
+  rabbitmq:
+    container_name: soc_rabbitmq
+    build:
+      context: ./rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    # command: rabbitmq-server
+    volumes:
+      - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./rabbitmq/rabbitmq.config.json:/etc/rabbitmq/rabbitmq.config.json
+      - ./volumes/rabbitmqdata/:/var/lib/rabbitmq/
+    restart: unless-stopped
+    networks:
+      - ojcompose
+  minio:
+    container_name: soc_minio
+    image: minio/minio:RELEASE.2021-01-08T21-18-21Z
+    volumes:
+      - ./volumes/minio:/data
+    env_file:
+      - ./.env
+    restart: unless-stopped
+    ports:
+      - 8084:9000
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    networks:
+      - ojcompose
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: soc_phpmyadmin
+    environment:
+      - PMA_HOST=mysql.code.local
+    restart: always
+    ports:
+      - 50:80
+    volumes:
+      - ./volumes/pma/:/sessions
+    extra_hosts:
+      - mysql.code.local:${HOST_IP}
+    networks:
+      - ojcompose
+networks:
+  ojcompose:
+    driver: bridge
