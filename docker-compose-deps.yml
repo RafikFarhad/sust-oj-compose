@@ -94,6 +94,7 @@ services:
     container_name: soc_phpmyadmin
     environment:
       - PMA_HOST=mysql.code.local
+      - UPLOAD_LIMIT=50M
     restart: always
     ports:
       - 50:80
